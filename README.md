@@ -60,6 +60,12 @@ dailytasksnote docs/
 - Host the `index.html` file on any static web server (e.g., GitHub Pages, Netlify, Vercel, or your own server).
 - Ensure your Google Apps Script backend is deployed and the `SCRIPT_URL` is updated accordingly.
 
-## License
+---
 
-MIT License. Feel free to use and modify for your team! 
+## Support & Contact
+
+For technical support or questions about this Petty Cash Manager system, please contact your system administrator or the development team.
+
+**Version**: 1.0  
+**Last Updated**: January 2024  
+**Maintained By**: RBX Development Team 
