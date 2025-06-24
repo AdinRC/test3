@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Tasks & Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 16px 16px; opacity: 0.2; z-index: -1;
+        }
+        .tab-active { border-color: #3b82f6; color: #3b82f6; background-color: #eff6ff; }
+        .tab-inactive { color: #4b5563; }
+        .tab-inactive:hover { background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <main class="w-full max-w-4xl bg-white rounded-2xl shadow-xl border border-gray-200">
+        <!-- Header and Tab Navigation -->
+        <header class="p-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                 <div class="flex items-baseline gap-3 mb-4 sm:mb-0">
+                    <h1 class="text-3xl font-bold text-gray-800">Daily Tasks Note</h1>
+                    <span class="text-sm font-semibold text-gray-400">Powered by RBX</span>
+                </div>
+                <div class="flex items-center gap-2 border border-gray-300 rounded-lg p-1">
+                    <button id="tab-tasks" onclick="switchTab('tasks')" class="tab-active w-full sm:w-auto text-sm font-semibold py-2 px-4 rounded-md transition-colors">
+                        <i class="fa-solid fa-note-sticky mr-2"></i>Tasks Note
+                    </button>
+                    <button id="tab-dashboard" onclick="switchTab('dashboard')" class="tab-inactive w-full sm:w-auto text-sm font-semibold py-2 px-4 rounded-md transition-colors">
+                        <i class="fa-solid fa-chart-line mr-2"></i>Dashboard
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6 md:p-10">
+            <!-- ===== TASKS SECTION ===== -->
+            <div id="tasks-section">
+                <div id="form-container">
+                    <form id="task-form">
+                        <div class="grid md:grid-cols-2 gap-6 mb-6 border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center gap-3">
+                                <label for="date" class="w-20 text-gray-600 font-semibold flex items-center gap-2"><i class="fa-solid fa-calendar-days"></i> Date</label>
+                                <input type="date" id="date" name="Date" required class="w-full bg-gray-100 border-gray-300 text-gray-700 rounded-md p-2 focus:ring-2 focus:ring-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <label for="name" class="w-20 text-gray-600 font-semibold flex items-center gap-2"><i class="fa-solid fa-user"></i> Name</label>
+                                <select id="name" name="Name" required class="w-full bg-gray-100 border-gray-300 text-gray-700 rounded-md p-2 focus:ring-2 focus:ring-blue-500 transition">
+                                    <option value="" disabled selected>Loading users...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div><label for="yesterday" class="block text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-check-double text-green-500"></i> Yesterday's Done</label><textarea id="yesterday" name="Yesterday's Done" rows="4" class="w-full bg-gray-50 border-gray-300 rounded-md p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="- Task 1&#10;- Task 2"></textarea></div>
+                            <div><label for="today" class="block text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-crosshairs text-blue-500"></i> Today's Focus</label><textarea id="today" name="Today's Focus" rows="4" class="w-full bg-gray-50 border-gray-300 rounded-md p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="- Main goal for today"></textarea></div>
+                            <div><label for="blockers" class="block text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-yellow-500"></i> Blockers / Issues</label><textarea id="blockers" name="Blockers / Pending Issues" rows="3" class="w-full bg-gray-50 border-gray-300 rounded-md p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="- Waiting for..."></textarea></div>
+                            <div><label for="context" class="block text-lg font-semibold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-star text-purple-500"></i> Context Note</label><textarea id="context" name="Context Note" rows="3" class="w-full bg-gray-50 border-gray-300 rounded-md p-3 text-gray-700 focus:ring-2 focus:ring-blue-500 transition" placeholder="Any additional notes..."></textarea></div>
+                        </div>
+                        <div class="mt-8 text-center"><button type="submit" id="submit-button" class="bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all w-full md:w-auto"><span id="button-text">Record Note</span><i id="button-spinner" class="fa-solid fa-spinner fa-spin hidden"></i></button></div>
+                    </form>
+                </div>
+                <div id="form-success-message" class="hidden text-center p-8"><div class="mx-auto w-16 h-16 flex items-center justify-center bg-green-100 rounded-full mb-4"><i class="fa-solid fa-check text-4xl text-green-600"></i></div><h2 class="text-2xl font-bold">Note Submitted!</h2><p class="text-gray-600 mb-6">Your daily task note has been recorded.</p><button onclick="resetTaskForm()" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700">Add Another Note</button></div>
+                <div id="form-error-message" class="hidden text-center p-8"><div class="mx-auto w-16 h-16 flex items-center justify-center bg-red-100 rounded-full mb-4"><i class="fa-solid fa-xmark text-4xl text-red-600"></i></div><h2 class="text-2xl font-bold">Submission Failed!</h2><p class="text-gray-600 mb-6">An error occurred. Please try again.</p><button onclick="resetTaskForm()" class="bg-gray-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-700">Try Again</button></div>
+            </div>
+
+            <!-- ===== DASHBOARD SECTION ===== -->
+            <div id="dashboard-section" class="hidden">
+                <div id="login-section"><div class="w-full max-w-md mx-auto bg-white p-8"><div class="text-center mb-8"><h1 class="text-2xl font-bold">Dashboard Login</h1><p class="text-gray-500">Log in to view analysis and manage users.</p></div><form id="login-form"><div class="mb-4"><label for="email" class="block font-semibold mb-2">Email</label><input type="email" id="email" required class="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div class="mb-6"><label for="password" class="block font-semibold mb-2">Password</label><input type="password" id="password" required class="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div id="login-error-message" class="text-red-500 text-center mb-4 hidden"></div><button type="submit" id="login-button" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all"><span id="login-button-text">Log In</span><i id="login-spinner" class="fa-solid fa-spinner fa-spin hidden"></i></button></form></div></div>
+                
+                <div id="analysis-section" class="hidden">
+                    <div class="flex justify-end mb-4"><button onclick="logout()" class="text-sm bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-all"><i class="fa-solid fa-right-from-bracket mr-2"></i>Logout</button></div>
+                    
+                    <div class="border-b-2 mb-6">
+                        <nav class="flex gap-4 -mb-0.5" id="dashboard-nav">
+                             <button onclick="switchDashboardView('analytics')" data-view="analytics" class="py-3 px-1 border-b-2 border-blue-500 text-blue-500 font-semibold">Analytics</button>
+                             <button onclick="switchDashboardView('users')" data-view="users" class="py-3 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700">User Management</button>
+                        </nav>
+                    </div>
+
+                    <!-- Analytics View -->
+                    <main id="analytics-view" class="space-y-8">
+                        <div id="dashboard-loading-state" class="text-center py-16"><i class="fa-solid fa-spinner fa-spin text-4xl text-blue-600"></i><p class="mt-4 text-gray-600">Analyzing data...</p></div>
+                        <div id="dashboard-no-data-state" class="hidden text-center py-16"><i class="fa-solid fa-database text-4xl text-gray-400"></i><p class="mt-4 font-semibold">No data found.</p></div>
+                        <div id="dashboard-data-display" class="hidden space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fa-solid fa-users text-3xl text-blue-500"></i><div><p class="text-gray-500">Contributors</p><p id="total-contributors" class="text-3xl font-bold"></p></div></div>
+                                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fa-solid fa-file-alt text-3xl text-green-500"></i><div><p class="text-gray-500">Total Notes</p><p id="total-notes" class="text-3xl font-bold"></p></div></div>
+                                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fa-solid fa-triangle-exclamation text-3xl text-yellow-500"></i><div><p class="text-gray-500">Total Blockers</p><p id="total-blockers" class="text-3xl font-bold"></p></div></div>
+                                <div class="bg-white p-6 rounded-xl shadow-md flex items-center gap-4"><i class="fa-solid fa-user-check text-3xl text-purple-500"></i><div><p class="text-gray-500">Most Active</p><p id="most-active-user" class="text-2xl font-bold truncate"></p></div></div>
+                            </div>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <div class="bg-white p-6 rounded-xl shadow-md"><h2 class="text-xl font-bold mb-4">Submissions per Person</h2><canvas id="submissions-chart"></canvas></div>
+                                <div class="bg-white p-6 rounded-xl shadow-md"><h2 class="text-xl font-bold mb-4">Submissions Over Time</h2><canvas id="timeline-chart"></canvas></div>
+                            </div>
+                        </div>
+                    </main>
+                    <!-- User Management View -->
+                    <main id="users-view" class="hidden space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <h2 class="text-xl font-bold mb-4">Add New User</h2>
+                            <form id="add-user-form" class="flex gap-4 items-center">
+                                <input type="text" id="new-user-name" placeholder="Enter new user's name" required class="w-full px-4 py-2 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button type="submit" id="add-user-button" class="bg-blue-600 text-white font-bold py-2 px-5 rounded-lg hover:bg-blue-700 transition-all"><i class="fa-solid fa-plus mr-2"></i>Add</button>
+                            </form>
+                             <div id="user-op-status" class="text-sm mt-2"></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-md">
+                            <h2 class="text-xl font-bold mb-4">Current Users</h2>
+                            <ul id="user-list" class="space-y-3">
+                                <!-- User list will be populated by JavaScript -->
+                            </ul>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- CONFIGURATION ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPsVMEHgboe2DuO0u9N4PH06zL0wMGn7JKcA73aNtAQ2Ei9pOb8jc9Q634ajZ331YF8w/exec';
+        
+        // --- GLOBAL STATE ---
+        let currentUsers = [];
+        let submissionsChartInstance = null;
+        let timelineChartInstance = null;
+        
+        // --- DOM ELEMENTS ---
+        const nameDropdown = document.getElementById('name');
+        const taskForm = document.getElementById('task-form');
+        const loginForm = document.getElementById('login-form');
+        // Add other element selectors here as needed to avoid repeated lookups
+        const tasksSection = document.getElementById('tasks-section');
+        const dashboardSection = document.getElementById('dashboard-section');
+        const loginSection = document.getElementById('login-section');
+        const analysisSection = document.getElementById('analysis-section');
+        const analyticsView = document.getElementById('analytics-view');
+        const usersView = document.getElementById('users-view');
+        
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            fetchUsersForDropdown();
+        });
+
+        function fetchUsersForDropdown() {
+            const formData = new FormData();
+            formData.append('action', 'get_users');
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.result === 'success') {
+                        currentUsers = res.users;
+                        populateUserDropdown(res.users);
+                    } else { throw new Error(res.error); }
+                })
+                .catch(error => {
+                    console.error("Failed to fetch users:", error);
+                    nameDropdown.innerHTML = `<option value="" disabled selected>Error loading users</option>`;
+                });
+        }
+
+        function populateUserDropdown(users) {
+            nameDropdown.innerHTML = '<option value="" disabled selected>Select your name</option>';
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user;
+                option.textContent = user;
+                nameDropdown.appendChild(option);
+            });
+        }
+
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tab) {
+            const tabTasks = document.getElementById('tab-tasks');
+            const tabDashboard = document.getElementById('tab-dashboard');
+            
+            if (tab === 'tasks') {
+                tasksSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+                tabTasks.classList.replace('tab-inactive', 'tab-active');
+                tabDashboard.classList.replace('tab-active', 'tab-inactive');
+            } else if (tab === 'dashboard') {
+                tasksSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                tabDashboard.classList.replace('tab-inactive', 'tab-active');
+                tabTasks.classList.replace('tab-active', 'tab-inactive');
+
+                if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                    showAnalysisView();
+                } else {
+                    showLoginView();
+                }
+            }
+        }
+        
+        function switchDashboardView(view) {
+             document.querySelectorAll('#dashboard-nav button').forEach(button => {
+                button.classList.remove('border-blue-500', 'text-blue-500');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            const selectedButton = document.querySelector(`#dashboard-nav button[data-view="${view}"]`);
+            selectedButton.classList.add('border-blue-500', 'text-blue-500');
+            
+            analyticsView.classList.toggle('hidden', view !== 'analytics');
+            usersView.classList.toggle('hidden', view !== 'users');
+        }
+
+        // --- TASK FORM LOGIC ---
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const submitButton = document.getElementById('submit-button');
+            const formData = new FormData(taskForm);
+            formData.append('action', 'submit_note');
+            
+            setButtonLoading(submitButton, true);
+            
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(handleFetchResponse)
+                .then(() => showFormMessage('success'))
+                .catch(error => {
+                    console.error('Task form error:', error);
+                    showFormMessage('error');
+                })
+                .finally(() => setButtonLoading(submitButton, false));
+        });
+        
+        function resetTaskForm() {
+            document.getElementById('form-container').classList.remove('hidden');
+            document.getElementById('form-success-message').classList.add('hidden');
+            document.getElementById('form-error-message').classList.add('hidden');
+            taskForm.reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // --- DASHBOARD LOGIN/LOGOUT ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const loginButton = document.getElementById('login-button');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const url = `${SCRIPT_URL}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+            
+            setButtonLoading(loginButton, true);
+            document.getElementById('login-error-message').classList.add('hidden');
+
+            fetch(url)
+                .then(handleFetchResponse)
+                .then(res => {
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('dashboardData', JSON.stringify(res.data.tasks));
+                    currentUsers = res.data.users;
+                    showAnalysisView();
+                })
+                .catch(error => {
+                    document.getElementById('login-error-message').textContent = `Login Failed: ${error.message}`;
+                    document.getElementById('login-error-message').classList.remove('hidden');
+                })
+                .finally(() => setButtonLoading(loginButton, false));
+        });
+
+        function logout() {
+            sessionStorage.clear();
+            currentUsers = [];
+            showLoginView();
+            fetchUsersForDropdown(); // Refetch users for the main form
+        }
+
+        function showLoginView() {
+            loginSection.classList.remove('hidden');
+            analysisSection.classList.add('hidden');
+        }
+
+        function showAnalysisView() {
+            loginSection.classList.add('hidden');
+            analysisSection.classList.remove('hidden');
+            renderDashboard();
+            renderUserManagement();
+        }
+
+        // --- DASHBOARD RENDERING ---
+        function renderDashboard() {
+            const data = JSON.parse(sessionStorage.getItem('dashboardData')) || [];
+            const loading = document.getElementById('dashboard-loading-state');
+            const noData = document.getElementById('dashboard-no-data-state');
+            const display = document.getElementById('dashboard-data-display');
+
+            loading.classList.add('hidden');
+            if (data.length === 0) {
+                noData.classList.remove('hidden');
+                display.classList.add('hidden');
+                return;
+            }
+            noData.classList.add('hidden');
+            display.classList.remove('hidden');
+            
+            const notesByName = data.reduce((acc, note) => {
+                acc[note.Name] = (acc[note.Name] || 0) + 1;
+                return acc;
+            }, {});
+            const totalBlockers = data.filter(n => n['Blockers / Pending Issues'] && n['Blockers / Pending Issues'].trim() !== '').length;
+            const mostActive = Object.entries(notesByName).sort((a, b) => b[1] - a[1])[0];
+            
+            document.getElementById('total-contributors').textContent = Object.keys(notesByName).length;
+            document.getElementById('total-notes').textContent = data.length;
+            document.getElementById('total-blockers').textContent = totalBlockers;
+            document.getElementById('most-active-user').textContent = mostActive ? mostActive[0] : 'N/A';
+            
+            renderCharts(data, notesByName);
+        }
+
+        function renderCharts(data, notesByName) {
+             const notesByDate = data.reduce((acc, note) => {
+                const date = new Date(note.Date).toISOString().split('T')[0];
+                acc[date] = (acc[date] || 0) + 1;
+                return acc;
+            }, {});
+            const sortedDates = Object.keys(notesByDate).sort();
+
+            if (submissionsChartInstance) submissionsChartInstance.destroy();
+            submissionsChartInstance = new Chart(document.getElementById('submissions-chart'), {
+                type: 'bar',
+                data: { labels: Object.keys(notesByName), datasets: [{ label: 'Notes', data: Object.values(notesByName), backgroundColor: '#3b82f6' }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            if (timelineChartInstance) timelineChartInstance.destroy();
+            timelineChartInstance = new Chart(document.getElementById('timeline-chart'), {
+                type: 'line',
+                data: {
+                    labels: sortedDates.map(d => new Date(d).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})),
+                    datasets: [{ label: 'Submissions', data: sortedDates.map(d => notesByDate[d]), tension: 0.1, borderColor: '#10b981' }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
+        }
+        
+        // --- USER MANAGEMENT LOGIC ---
+        function renderUserManagement() {
+            const userList = document.getElementById('user-list');
+            userList.innerHTML = '';
+            if (currentUsers.length === 0) {
+                userList.innerHTML = `<li class="text-gray-500">No users found. Add one above.</li>`;
+                return;
+            }
+            currentUsers.sort().forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-center bg-gray-50 p-3 rounded-lg';
+                li.innerHTML = `
+                    <span class="font-medium">${user}</span>
+                    <button onclick="removeUser('${user}')" class="text-red-500 hover:text-red-700 font-bold text-lg">&times;</button>
+                `;
+                userList.appendChild(li);
+            });
+        }
+        
+        document.getElementById('add-user-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newUserNameInput = document.getElementById('new-user-name');
+            const name = newUserNameInput.value.trim();
+            if (!name) return;
+
+            const formData = new FormData();
+            formData.append('action', 'add_user');
+            formData.append('name', name);
+            
+            showUserOpStatus('Adding...', 'text-gray-500');
+            
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(handleFetchResponse)
+                .then(() => {
+                    showUserOpStatus(`User '${name}' added successfully.`, 'text-green-600');
+                    currentUsers.push(name);
+                    renderUserManagement();
+                    populateUserDropdown(currentUsers.sort()); // Update main form dropdown
+                    newUserNameInput.value = '';
+                })
+                .catch(error => showUserOpStatus(`Error: ${error.message}`, 'text-red-500'));
+        });
+
+        function removeUser(name) {
+            if (!confirm(`Are you sure you want to remove '${name}'?`)) return;
+
+            const formData = new FormData();
+            formData.append('action', 'remove_user');
+            formData.append('name', name);
+            
+            showUserOpStatus('Removing...', 'text-gray-500');
+
+            fetch(SCRIPT_URL, { method: 'POST', body: formData })
+                .then(handleFetchResponse)
+                .then(() => {
+                    showUserOpStatus(`User '${name}' removed successfully.`, 'text-green-600');
+                    currentUsers = currentUsers.filter(u => u !== name);
+                    renderUserManagement();
+                    populateUserDropdown(currentUsers.sort()); // Update main form dropdown
+                })
+                .catch(error => showUserOpStatus(`Error: ${error.message}`, 'text-red-500'));
+        }
+        
+        function showUserOpStatus(message, colorClass) {
+            const statusEl = document.getElementById('user-op-status');
+            statusEl.textContent = message;
+            statusEl.className = `text-sm mt-2 ${colorClass}`;
+            setTimeout(() => statusEl.textContent = '', 4000);
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function setButtonLoading(button, isLoading) {
+            const text = button.querySelector('span');
+            const spinner = button.querySelector('i');
+            button.disabled = isLoading;
+            if (text) text.classList.toggle('hidden', isLoading);
+            if (spinner) spinner.classList.toggle('hidden', !isLoading);
+        }
+
+        function handleFetchResponse(res) {
+            return res.json().then(json => {
+                if (json.result === 'success') return json;
+                throw new Error(json.error || 'An unknown error occurred.');
+            });
+        }
+        
+        function showFormMessage(type) {
+             document.getElementById('form-container').classList.add('hidden');
+             const messageEl = (type === 'success') 
+                ? document.getElementById('form-success-message')
+                : document.getElementById('form-error-message');
+            messageEl.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
